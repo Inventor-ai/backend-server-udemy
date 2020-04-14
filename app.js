@@ -1,15 +1,26 @@
 //  1. Requires (Importación de librerías ya sea de terceros o personalizadas para hacer algo)
 var express = require('express'); //  1. Servidor express
 var mongoose = require('mongoose'); //  5. Mongoose
+var bodyParser = require('body-parser'); // body parser
 
 //  2. Inicializar variables
 var app = express();
+
+// Body parser ( Middleware )
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json()); // parse application/json
+
+// Importar rutas
+var appRoutes = require('./routes/app');
+var usuarioRoutes = require('./routes/usuario');
+var loginRoutes = require('./routes/login');
+
 //  6. Conexión a la base de datos
 // mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, rep) => {
 //         if (err) throw err;
 //             console.log('Base de datos: \x1b[32m%s\x1b[0m', 'online');
 // });
-
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', function(err, res) {
     if (err) throw err;
     console.log('Base de datos: \x1b[32m%s\x1b[0m', 'online');
@@ -24,7 +35,16 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', function(err
 */
 
 // 4. Rutas
-// Versión con con la palabra reservada function
+//    103. Implementaciòn de Middleware (Algo que se ejecuta antes de que se resuelvan otras rutas)
+app.use('/login', loginRoutes); // Cuando algo coincida con '/usuario', usar: loginRoutes
+app.use('/usuario', usuarioRoutes); // Cuando algo coincida con '/usuario', usar: usuarioRoutes
+app.use('/', appRoutes); // Cuando algo coincida con '/', usar: appRoutes
+
+/*
+// ******************************************
+// Begin - Bloq moved to routes/app.js
+// ******************************************
+// Versión con la palabra reservada function
 app.get('/', function(req, res, next) {
     res.status(200).json({
         ok: true,
@@ -42,6 +62,10 @@ app.get('/', function(req, res, next) {
 //     });
 // });
 
+// ******************************************
+// End - Bloq moved to routes/app.js
+// ******************************************
+*/
 
 // 3. Escuchar peticiones al puerto 3000
 app.listen(3000, function() {
