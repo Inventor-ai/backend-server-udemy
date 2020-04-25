@@ -13,8 +13,13 @@ app.use(bodyParser.json()); // parse application/json
 
 // Importar rutas
 var appRoutes = require('./routes/app');
-var usuarioRoutes = require('./routes/usuario');
+var imgRoutes = require('./routes/imagenes');
 var loginRoutes = require('./routes/login');
+var uploadRoutes = require('./routes/upload');
+var buscarRoutes = require('./routes/buscar');
+var medicoSchema = require('./routes/medico');
+var usuarioRoutes = require('./routes/usuario');
+var hospitalRoutes = require('./routes/hospital');
 
 //  6. Conexión a la base de datos
 // mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, rep) => {
@@ -35,9 +40,14 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', function(err
 */
 
 // 4. Rutas
-//    103. Implementaciòn de Middleware (Algo que se ejecuta antes de que se resuelvan otras rutas)
+//    103. Implementación de Middleware (Algo que se ejecuta antes de que se resuelvan otras rutas)
+app.use('/img', imgRoutes); // Cuando algo coincida con '/usuario', usar: loginRoutes
 app.use('/login', loginRoutes); // Cuando algo coincida con '/usuario', usar: loginRoutes
+app.use('/upload', uploadRoutes);
+app.use('/buscar', buscarRoutes);
+app.use('/medico', medicoSchema);
 app.use('/usuario', usuarioRoutes); // Cuando algo coincida con '/usuario', usar: usuarioRoutes
+app.use('/hospital', hospitalRoutes);
 app.use('/', appRoutes); // Cuando algo coincida con '/', usar: appRoutes
 
 /*

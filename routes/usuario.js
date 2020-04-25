@@ -55,12 +55,18 @@ var mdDataUsuario = require('../middlewares/datausuario'); // Owner middleware
 // });
 */
 // 2. Con dos parámetros en el .find() y agregando el método .exec
-
 app.get('/', function(request, response, next) { // Devuelve todos los registros
     // Todos los campos
     // Usuario.find({}, function(error, data) {
     // Solo los campos: '_id nombre email role img'
+    var desde = request.query.desde || 0;
+    desde = Number(desde);
+    var regs = request.query.regs || 0; // 0: Todos
+    regs = Number(regs);
     Usuario.find({}, '_id nombre email role img')
+        .skip(desde)
+        // .limit(5)
+        .limit(regs)
         .exec(function(error, data) {
             if (error) {
                 return response.status(500).json({
@@ -69,10 +75,22 @@ app.get('/', function(request, response, next) { // Devuelve todos los registros
                     errors: error
                 });
             }
-            response.status(200).json({
-                ok: true,
-                msg: "Usuarios",
-                usuarios: data
+            // Usuario.count({}, function(err, conteo) {
+            Usuario.countDocuments(function(err, conteo) {
+                if (err) {
+                    return response.status(500).json({
+                        ok: false,
+                        msg: "Error de acceso al contar usuarios",
+                        total: conteo,
+                        usuarios: data
+                    });
+                }
+                response.status(200).json({
+                    ok: true,
+                    msg: "Usuarios",
+                    total: conteo,
+                    usuarios: data
+                });
             });
         });
 });
@@ -91,34 +109,59 @@ app.get('/', (request, response, next) => {
                 errors: err
             });
         }
-        response.status(200).json({
-            ok: true,
-            msg: "Usuarios",
-            usuarios: data
-        });
+        // response.status(200).json({
+        //     ok: true,
+        //     msg: "Usuarios",
+        //     usuarios: data
+        // });
     });
 });
 */
 
 // 2. Con dos parámetros en el .find() y agregando el método .exec
-// app.get('/', (req, res, nxt) => {
-//     Usuario.find({}, '_id nombre email role img').exec(
-//         (err, data) => {
-//             if (err) {
-//                 res.status(500).json({
-//                     ok: false,
-//                     msg: "Error en base de datos usuarios",
-//                     errors: err
-//                 });
-//             }
-//             res.status(200).json({
-//                 ok: true,
-//                 msg: 'usuarios',
-//                 usuarios: data
-//             });
-//         }
-//     );
-// });
+/*
+app.get('/', (req, res) => {
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+    var regs = req.query.regs || 0;
+    regs = Number(regs);
+    Usuario.find({}, '_id nombre email role img')
+        .skip(desde)
+        .limit(regs)
+        .exec(
+            (err, data) => {
+                if (err) {
+                    res.status(500).json({
+                        ok: false,
+                        msg: "Error en base de datos usuarios",
+                        errors: err
+                    });
+                }
+                // Usuario.count({}, (err, conteo) => {
+                Usuario.countDocuments((err, conteo) => {
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            msg: "Error de acceso al contar usuarios",
+                            usuarios: data
+                        });
+                    }
+                    res.status(200).json({
+                        ok: true,
+                        msg: "Usuarios",
+                        total: conteo,
+                        usuarios: data
+                    });
+                });
+                // res.status(200).json({
+                //     ok: true,
+                //     msg: 'usuarios',
+                //     usuarios: data
+                // });
+            }
+        );
+});
+*/
 
 // ==============================================
 // Verificar Token - Implementando middleware
@@ -135,7 +178,7 @@ app.get('/', (request, response, next) => {
 // app.post('/', mdAutenticacion.verificaToken, function(req, res) {  // Versión desde 112
 app.post('/', [mdAutenticacion.verificaToken, mdDataUsuario.isPasswordOk], function(req, res) { // Own Version
     var body = req.body; // Agregar f(x) para validar datos en campos ok
-    var test = doCheckSquema(req, res); // Función a nivel de IDEA v.2
+    // var test = doCheckSquema(req, res); // Función a nivel de IDEA v.2
     // Bloque demo - Inicio
     // var test = doCheckSquema(req, Usuario);  // Función a nivel de IDEA v.1
     // Bloque demo - Fin
